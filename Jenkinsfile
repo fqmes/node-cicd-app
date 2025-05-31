@@ -1,10 +1,13 @@
 pipeline {
     agent any
 
-            tools {
-    nodejs 'node18'
-}
+    environment {
+        DOCKER_HOST = 'tcp://host.docker.internal:2375'
+    }
 
+    tools {
+        nodejs 'node18'
+    }
 
     stages {
         stage('Install') {
@@ -12,8 +15,6 @@ pipeline {
                 sh 'npm install'
             }
         }
-
-
 
         stage('Test') {
             steps {
@@ -23,17 +24,17 @@ pipeline {
 
         stage('Docker Build') {
             steps {
-                script {
-                    docker.build("your-dockerhub-username/node-cicd-app")
-                }
+                sh 'docker build -t your-dockerhub-username/node-cicd-app .'
             }
         }
 
         stage('Docker Push') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASS')]) {
-                    sh 'echo $DOCKERHUB_PASS | docker login -u $DOCKERHUB_USER --password-stdin'
-                    sh 'docker push your-dockerhub-username/node-cicd-app'
+                    sh '''
+                        echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USER" --password-stdin
+                        docker push your-dockerhub-username/node-cicd-app
+                    '''
                 }
             }
         }
