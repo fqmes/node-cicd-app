@@ -24,7 +24,7 @@ pipeline {
 
         stage('Docker Build') {
             steps {
-                sh 'docker build -t your-dockerhub-username/node-cicd-app .'
+                sh 'docker build -t trncel/node-cicd-app .'
             }
         }
 
@@ -33,7 +33,7 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASS')]) {
                     sh '''
                         echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USER" --password-stdin
-                        docker push your-dockerhub-username/node-cicd-app
+                        docker push trncel/node-cicd-app
                     '''
                 }
             }
